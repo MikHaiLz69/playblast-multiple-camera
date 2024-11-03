@@ -9,4 +9,5 @@ Key features include:
 - User-Friendly Interface: A clean, intuitive UI that facilitates quick navigation and functionality, ensuring a smooth user experience.
 - Rename Functionality: Rename selected cameras directly within the tool for better organization.
 - Settings Management: Save and load user preferences to maintain consistency across sessions, with the ability to reset to default settings when necessary.
+
 By leveraging this script, users can enhance their workflow, focus on the creative aspects of their projects, and ultimately save time during the playblast process.
