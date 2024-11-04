@@ -89,9 +89,23 @@ def save_settings(directory, prefix, format_option, resolution_option, custom_wi
     cmds.optionVar(sv=("prefix", prefix))
     cmds.optionVar(sv=("formatOption", format_option))
     cmds.optionVar(sv=("resolutionOption", resolution_option))
-    cmds.optionVar(iv=("customWidth", custom_width))
-    cmds.optionVar(iv=("customHeight", custom_height))
-    cmds.optionVar(iv=("quality", quality))
+    
+    # Convert to integers if not empty, otherwise use default values
+    if custom_width.isdigit():
+        cmds.optionVar(iv=("customWidth", int(custom_width)))
+    else:
+        cmds.optionVar(iv=("customWidth", 640))  # Default value if invalid
+
+    if custom_height.isdigit():
+        cmds.optionVar(iv=("customHeight", int(custom_height)))
+    else:
+        cmds.optionVar(iv=("customHeight", 480))  # Default value if invalid
+
+    # Ensure quality is also an integer or default value
+    if quality.isdigit():
+        cmds.optionVar(iv=("quality", int(quality)))
+    else:
+        cmds.optionVar(iv=("quality", 100))  # Default value if invalid
 
 def load_settings():
     return [
@@ -103,6 +117,14 @@ def load_settings():
         cmds.optionVar(q="customHeight"),
         cmds.optionVar(q="quality"),
     ]
+    
+def reset_settings(prefix_field, format_menu, resolution_menu, custom_width_field, custom_height_field, quality_field):
+    cmds.textField(prefix_field, edit=True, text="")
+    cmds.optionMenu(format_menu, edit=True, value="qt")  # Default format
+    cmds.optionMenu(resolution_menu, edit=True, value="Render Settings")  # Default resolution
+    cmds.textField(custom_width_field, edit=True, text="")  # Clear custom width
+    cmds.textField(custom_height_field, edit=True, text="")  # Clear custom height
+    cmds.textField(quality_field, edit=True, text="100")  # Reset quality to 100
 
 def create_playblast_ui():
     if cmds.window("playblastUI", exists=True):
@@ -110,9 +132,12 @@ def create_playblast_ui():
     
     window = cmds.window("playblastUI", title="Playblast Multiple Camera", widthHeight=(400, 600), sizeable=True)
     cmds.columnLayout(adjustableColumn=True)
-    
+
     # Load saved settings
     output_directory, prefix, format_option, resolution_option, custom_width, custom_height, quality = load_settings()
+    
+    # Add this to the bottom of the UI layout to display version and author
+    cmds.text(label="Version 1.0.0 | Author: Ai", align='center')
 
     # Camera selection section
     cmds.text(label=" Camera selection:")
@@ -182,9 +207,9 @@ def create_playblast_ui():
         cmds.textField(directory_field, query=True, text=True),
         cmds.optionMenu(format_menu, query=True, value=True),
         cmds.optionMenu(resolution_menu, query=True, value=True),
-        int(cmds.textField(custom_width_field, query=True, text=True)) if cmds.optionMenu(resolution_menu, query=True, value=True) == "Custom" else None,
-        int(cmds.textField(custom_height_field, query=True, text=True)) if cmds.optionMenu(resolution_menu, query=True, value=True) == "Custom" else None,
-        int(cmds.textField(quality_field, query=True, text=True)),
+        int(cmds.textField(custom_width_field, query=True, text=True)) if cmds.optionMenu(resolution_menu, query=True, value=True) == "Custom" and cmds.textField(custom_width_field, query=True, text=True) != "" else 640,  # Default width
+        int(cmds.textField(custom_height_field, query=True, text=True)) if cmds.optionMenu(resolution_menu, query=True, value=True) == "Custom" and cmds.textField(custom_height_field, query=True, text=True) != "" else 480,  # Default height
+        int(cmds.textField(quality_field, query=True, text=True)) if cmds.textField(quality_field, query=True, text=True) != "" else 100,  # Default to 100 if empty
         cmds.textField(prefix_field, query=True, text=True)
     ))
 
@@ -207,12 +232,8 @@ def create_playblast_ui():
     cmds.setParent("..")
 
     cmds.separator(height=10, style='none')  # Spacer
-    
-    # Add this to the bottom of the UI layout to display version and author
-    cmds.separator(height=10, style='none')  # Spacer
-    cmds.text(label="Version 1.0.0 | Author: Ai", align='center')
 
     cmds.showWindow(window)
 
-# Create the UI
+# Ensure you define the reset_settings function before calling create_playblast_ui()
 create_playblast_ui()
