@@ -210,8 +210,7 @@ def create_playblast_ui():
     
     # Add this to the bottom of the UI layout to display version and author
     cmds.separator(height=10, style='none')  # Spacer
-    cmds.text(label="Version 1.0.0", align='center')
-    cmds.text(label="Author: Ai", align='center')
+    cmds.text(label="Version 1.0.0 | Author: Ai", align='center')
 
     cmds.showWindow(window)
 
